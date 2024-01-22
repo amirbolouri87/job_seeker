@@ -1,0 +1,4 @@
+-r base.txt
+factory-boy==3.2.1
+django-nose==1.4.7
+coverage==7.3.2
