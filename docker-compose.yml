@@ -1,0 +1,69 @@
+services:
+
+  web:
+    image: repo.sos.com/insurance-e-claim/eclaim_production:$TAG_NAME
+    env_file:
+      - .setting_envs/production/.env
+    ports:
+      - '8000:8000'
+    networks:
+      - ecalim_network_development
+    volumes:
+      - static_volume:/eclaim_data/static
+
+
+  redis:
+    image: repo.sos.com/docker-remote/redis:latest
+    ports:
+      - '6379:6379'
+    networks:
+      - ecalim_network_development
+    env_file:
+      - .setting_envs/production/.env
+
+
+#  worker:
+#    image: repo.sos.com/insurance-e-claim/eclaim_production:$TAG_NAME
+#    command: celery -A config worker -B -l info
+#    env_file:
+#      - .setting_envs/production/.env
+#    depends_on:
+#      - web
+#      - redis
+#    networks:
+#      - ecalim_network_development
+
+
+#  flower:
+#    image: repo.sos.com/insurance-e-claim/eclaim_production:$TAG_NAME
+#    command: celery -A config flower
+#    ports:
+#      - "5555:5555"
+#    env_file:
+#      - .setting_envs/production/.env
+#    depends_on:
+#      - worker
+#      - redis
+#    networks:
+#      - ecalim_network_development
+
+  nginx:
+      image: repo.sos.com/insurance-e-claim/eclaim_nginx:1.25.3
+      ports:
+        - "80:80"
+      volumes:
+        - static_volume:/eclaim_data/static
+      depends_on:
+        - web
+      networks:
+        - ecalim_network_development
+
+volumes:
+  static_volume:
+    driver: local
+
+networks:
+  ecalim_network_development:
+
+
+#sudo TAG_NAME="latest" docker-compose up

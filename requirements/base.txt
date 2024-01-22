@@ -1,0 +1,6 @@
+Django
+drf-yasg
+django-environ
+python-decouple
+djangorestframework
+djangorestframework-simplejwt
