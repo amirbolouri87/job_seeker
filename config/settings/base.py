@@ -1,11 +1,15 @@
 import datetime
 import os
 from pathlib import Path
+import environ
+
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 APPS_DIR = BASE_DIR
 
+django_env = environ.Env()
+django_env.read_env(str(BASE_DIR / ".setting_envs/local/.django"))
 # GENERAL
 # ------------------------------------------------------------------------------
 DEBUG = False
@@ -167,7 +171,7 @@ SWAGGER_SETTINGS = {
 # PROJECT REQUIREMENT
 # ------------------------------------------------------------------------------
 SERVICE_NAME = "config"
-SERVICE_DESCRIPTION = "This system is designed to send documents and records related" \
-                      " to claims to assistance specialists and simplify payment after" \
-                      " approval. This streamlines the process of reimbursing claim expenses."
-SERVICE_VERSION = "1.0.0"
+
+ELASTICSEARCH_HOST = SECRET_KEY = django_env(
+    "ELASTICSEARCH_HOST",
+)

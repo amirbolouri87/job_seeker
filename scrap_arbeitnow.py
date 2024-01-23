@@ -1,9 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
-import time
+import time, json
 from selenium.webdriver.common.keys import Keys
-
+import requests
+from django.conf import settings
 
 driver = webdriver.Firefox()
 
@@ -22,28 +23,43 @@ for item in list_items:
     link_element = item.find_element(By.XPATH, ".//a")
     link_url = link_element.get_attribute("href")
     link_text = link_element.get_attribute("aria-label")
+    # title = item.find_element(By.XPATH, ".//h2[itemprop='title']")
+    # print(title)
     city = item.find_element(By.XPATH, ".//div[contains(@class, 'self-center')]/p")
-    advertisment_datetime = item.find_element(By.XPATH, ".//div[contains(@class, 'self-center')]//time")
-    advertisement_datetime = advertisment_datetime.get_attribute("datetime")
+    advertisement_datetime = item.find_element(By.XPATH, ".//div[contains(@class, 'self-center')]//time")
+    datetime = advertisement_datetime.get_attribute("datetime")
     advertisements.append({
         "city": city.text,
         "advertise_url": link_url,
-        "advertisement_datetime": advertisement_datetime,
+        "datetime": datetime,
         "link_text": link_text
     })
 
 for job_position in advertisements:
     driver.get(job_position['advertise_url'])
-    print(job_position['advertise_url'])
-    print(job_position['city'])
-    print(job_position['advertisement_datetime'])
+    # print(job_position['advertise_url'])
+    # print(job_position['city'])
+    # print(job_position['datetime'])
     time.sleep(3)
     advertise_title = driver.find_element(By.XPATH, "//div[@itemprop='description']")
-    print(advertise_title.text)
+    # print(advertise_title.text)
+    payload = {
+        "url": job_position['advertise_url'],
+        # "title": job_position['advertise_title'],
+        "city": job_position['city'],
+        "datetime": job_position['datetime'],
+        "content": advertise_title.text
+    }
+    print(payload)
+    json_data = json.dumps(payload)
+    headers = {'content-type':'application/json', 'charset':'UTF-8'}
+    r = requests.post(F'{settings.ELASTICSEARCH_HOST}/arbeitnow/_doc', data=json_data, headers=headers)
     print('================================================================')
-    break
+
     # driver.close()
 
 
 # Close the browser window
 # driver.quit()
+
+
