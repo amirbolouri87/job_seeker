@@ -29,7 +29,7 @@ SECRET_KEY = django_env(
     "SECRET_KEY",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", ]
+ALLOWED_HOSTS = ["*"]
 
 
 DATABASES["default"]["ATOMIC_REQUESTS"] = True

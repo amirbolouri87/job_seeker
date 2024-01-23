@@ -10,14 +10,14 @@ APPS_DIR = BASE_DIR
 # ------------------------------------------------------------------------------
 DEBUG = False
 TIME_ZONE = "Asia/Tehran"
-LANGUAGE_CODE = "fa-IR"
+LANGUAGE_CODE = "en-gb"
 SITE_ID = 1
 USE_I18N = True
 USE_TZ = True
 LOCALE_PATHS = [str(BASE_DIR / "locale")]
 LANGUAGES = (
     ('en', 'English'),
-    ('fa', 'Persian'),
+    # ('fa', 'Persian'),
 )
 
 # DATABASES
