@@ -1,28 +1,33 @@
 services:
 
+  main_database:
+    container_name: postgres:$DATABASE_TAG
+    image: job_seeker_postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: amir
+      POSTGRES_USER: amir
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - job_seeker_network_development
+
   web:
-    image: repo.sos.com/insurance-e-claim/eclaim_developement:$TAG_NAME
+    image: job_seeker_web_development:$APPLICATION_TAG
     command: bash -c "python manage.py runserver 0.0.0.0:8000 & python manage.py collectstatic --noinput && wait"
     env_file:
       - .setting_envs/local/.env
     ports:
       - '8000:8000'
+    depends_on:
+      - main_database
     networks:
-      - ecalim_network_development
-
-
-  redis:
-    image: repo.sos.com/insurance-e-claim/eclaim_developement:$TAG_NAME
-    ports:
-      - '6379:6379'
-    networks:
-      - ecalim_network_development
-    env_file:
-      - .setting_envs/local/.env
-
+      - job_seeker_network_development
 
   worker:
-    image: repo.sos.com/insurance-e-claim/eclaim_developement:$TAG_NAME
+    image: job_seeker_worker_development:$APPLICATION_TAG
     command: celery -A config worker -B -l info
     env_file:
       - .setting_envs/local/.env
@@ -30,11 +35,10 @@ services:
       - web
       - redis
     networks:
-      - ecalim_network_development
-
+      - job_seeker_network_development
 
   flower:
-    image: repo.sos.com/insurance-e-claim/eclaim_developement:$TAG_NAME
+    image: job_seeker_flower_development:$APPLICATION_TAG
     command: celery -A config flower
     ports:
       - "5555:5555"
@@ -44,10 +48,15 @@ services:
       - worker
       - redis
     networks:
-      - ecalim_network_development
+      - job_seeker_network_development
+
+
+volumes:
+  pgdata:
+
 
 networks:
-  ecalim_network_development:
+  job_seeker_network_development:
 
 
 #sudo TAG_NAME="latest" docker-compose -f docker-compose-dev.yml up

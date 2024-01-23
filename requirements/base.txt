@@ -4,3 +4,4 @@ django-environ
 python-decouple
 djangorestframework
 djangorestframework-simplejwt
+selenium==4.0.0
