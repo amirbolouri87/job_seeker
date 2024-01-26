@@ -42,14 +42,15 @@ class CollectArbeitnow(ICollectBySelenium):
             time.sleep(3)
             advertise_title = self.driver.find_element(By.XPATH, "//div[@itemprop='description']")
             job_position["content"] = advertise_title.text
+            job_position["is_translate"] = False
             job_position['pk'] = job_position['advertise_url'].split('/')[-1] if job_position['advertise_url'] else None
             self.payload.append(job_position)
             # print(job_position)
 
     def _insert_collect_data(self):
         for job_position in self.payload:
-            print(job_position)
             json_data = json.dumps(job_position)
+            print(json_data)
             headers = {'content-type': 'application/json', 'charset': 'UTF-8'}
-            r = requests.post(F'{settings.ELASTICSEARCH_HOST}/arbeitnow/_doc/{job_position["pk"]}', data=json_data, headers=headers)
+            # r = requests.post(F'{settings.ELASTICSEARCH_HOST}/arbeitnow/_doc/{job_position["pk"]}', data=json_data, headers=headers)
             print('================================================================')

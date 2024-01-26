@@ -42,6 +42,7 @@ for job_position in advertisements:
     time.sleep(3)
     advertise_title = driver.find_element(By.XPATH, "//div[@itemprop='description']")
     job_position["content"] = advertise_title.text
+    job_position["is_translate"] = False
     payload = job_position
 
     print(payload)
