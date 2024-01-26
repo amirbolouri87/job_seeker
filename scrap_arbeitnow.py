@@ -9,8 +9,8 @@ from django.conf import settings
 driver = webdriver.Firefox()
 
 driver.get('https://www.arbeitnow.com')
-username = driver.find_element(By.XPATH, "//input[@id='search_jobs_desktop']")
-username.send_keys('django')
+search_job = driver.find_element(By.XPATH, "//input[@id='search_jobs_desktop']")
+search_job.send_keys('django')
 driver.find_element(By.XPATH, "//select[@name='search_sort_by']/option[text()='Newest']").click()
 xpath_expression = "//ul[@id='results']/li"
 advertisements = []
