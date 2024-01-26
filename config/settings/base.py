@@ -10,6 +10,8 @@ APPS_DIR = BASE_DIR
 
 django_env = environ.Env()
 django_env.read_env(str(BASE_DIR / ".setting_envs/local/.django"))
+email_env = environ.Env()
+email_env.read_env(str(BASE_DIR / ".setting_envs/local/.email"))
 # GENERAL
 # ------------------------------------------------------------------------------
 DEBUG = False
@@ -168,10 +170,16 @@ SWAGGER_SETTINGS = {
 
 # PROJECT REQUIREMENT
 # ------------------------------------------------------------------------------
-# PROJECT REQUIREMENT
-# ------------------------------------------------------------------------------
 SERVICE_NAME = "config"
 
-ELASTICSEARCH_HOST = SECRET_KEY = django_env(
+ELASTICSEARCH_HOST = django_env(
     "ELASTICSEARCH_HOST",
 )
+# PROJECT ADMIN EMAIL
+# ------------------------------------------------------------------------------
+EMAIL_BACKEND = email_env('EMAIL_BACKEND')
+EMAIL_HOST = email_env('EMAIL_HOST')
+EMAIL_PORT = email_env('EMAIL_PORT')
+EMAIL_HOST_USER = email_env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = email_env('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
