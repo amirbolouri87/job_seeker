@@ -175,6 +175,9 @@ SERVICE_NAME = "config"
 ELASTICSEARCH_HOST = django_env(
     "ELASTICSEARCH_HOST",
 )
+BASE_HOST = django_env(
+    "BASE_HOST",
+)
 # PROJECT ADMIN EMAIL
 # ------------------------------------------------------------------------------
 EMAIL_BACKEND = email_env('EMAIL_BACKEND')

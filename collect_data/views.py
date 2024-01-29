@@ -1,31 +1,64 @@
+import googletrans
+from googletrans import Translator, LANGUAGES
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from collect_data.serializer import TranslateEnglishTextSerializer
+from collect_data.serializer import TranslateEnglishTextSerializer, IsEnglishTextSerializer
+from translate import translator
+
+class IsEnglishTextView(APIView):
+    def post(self, request):
+        serializer = IsEnglishTextSerializer(data=request.data)
+
+        if serializer.is_valid():
+            content = serializer.validated_data['content']
+            paragraphs = content.split('\n')
+            for paragraph in paragraphs:
+                translator = Translator()
+                result = translator.detect(paragraph)
+                language_code = result.lang
+                if language_code != 'en':
+                    return Response(False, status=status.HTTP_200_OK)
+                return Response(True, status=status.HTTP_200_OK)
 
 
 class TranslateEnglishText(APIView):
-    def get_advertisements(self, request):
-        self.advertisements = {
-          "title": "Sales Manager (m/w/d) Business Development / Vertrieb",
-          "company": "Ideabay GmbH",
-          "city": "Munich",
-          "advertise_url": "https://www.arbeitnow.com/jobs/companies/ideabay-gmbh/sales-manager-business-development-vertrieb-munich-191885",
-          "datetime": "2024-01-09 17:04:04",
-          "link_text": "View details for Sales Manager (m/w/d) Business Development / Vertrieb",
-          "content": "Wir sind VUI (:Unser Team macht uns besonders! Wir revolutionieren den Voice-Markt, in dem wir das Erlebnis für Nutzende von Sprachassistenten zu einem Besonderen, nämlich zu einem charmismatischen Erlebnis machen. Sei dabei!AufgabenLead-Magier: Du zauberst neue Leads und füllst unsere Umsatzpipeline durch Outbound Prospecting.!",
-          "pk": "sales-manager-business-development-vertrieb-munich-191885",
-            "is_translate": False
-        }
 
-        pass
+    def _translate(self, content):
+        translate_content = ""
+        paragraphs = content.split('\n')
+        for paragraph in paragraphs:
+            if self._check_germany(paragraph):
+                translate_paragraph = translator.translate(paragraph, src='de', dest='en').text
+                translate_content += str(translate_paragraph) + '\n'
+        return translate_content
 
-    def post(self, request):
-        keys = ['is_translate', 'content']
-        data = [self.advertisements.get(key) for key in keys]
-        serializer = TranslateEnglishTextSerializer(data=data)
+    @staticmethod
+    def _check_germany(content):
+        paragraphs = content.split('\n')
+        for paragraph in paragraphs:
+            translator = Translator()
+            result = translator.detect(paragraph)
+            language_code = result.lang
+            if language_code == 'de':
+                return True
+
+            return False
+
+    def post(self, request, *args, **kwargs):
+        serializer = TranslateEnglishTextSerializer(data=request.data)
+
         if serializer.is_valid():
-            serializer.save()
-            print(serializer.validated_data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            content = serializer.validated_data['content']
+
+            # Perform the translation logic here
+            translated_content = self._translate(content)
+
+            response_data = {
+                "content":translated_content,
+                "is_translated":True
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

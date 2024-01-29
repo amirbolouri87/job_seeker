@@ -52,5 +52,5 @@ class CollectArbeitnow(ICollectBySelenium):
             json_data = json.dumps(job_position)
             print(json_data)
             headers = {'content-type': 'application/json', 'charset': 'UTF-8'}
-            # r = requests.post(F'{settings.ELASTICSEARCH_HOST}/arbeitnow/_doc/{job_position["pk"]}', data=json_data, headers=headers)
+            r = requests.post(F'{settings.ELASTICSEARCH_HOST}/arbeitnow/_doc/{job_position["pk"]}', data=json_data, headers=headers)
             print('================================================================')
