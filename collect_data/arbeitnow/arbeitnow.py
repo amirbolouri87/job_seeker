@@ -7,9 +7,10 @@ from django.conf import settings
 
 class CollectArbeitnow(ICollectBySelenium):
 
-    def set_search_data(self):
+    def _set_search_data(self):
         search_job = self.driver.find_element(By.XPATH, "//input[@id='search_jobs_desktop']")
         search_job.send_keys(self.search_keyword)
+        time.sleep(5)
 
     def _collect_list_data(self):
         self.driver.find_element(By.XPATH, "//select[@name='search_sort_by']/option[text()='Newest']").click()
@@ -52,5 +53,8 @@ class CollectArbeitnow(ICollectBySelenium):
             json_data = json.dumps(job_position)
             print(json_data)
             headers = {'content-type': 'application/json', 'charset': 'UTF-8'}
+            is_exist_ad = r = requests.get(F'{settings.ELASTICSEARCH_HOST}/arbeitnow/_doc/{job_position["pk"]}', headers=headers)
+            if is_exist_ad.status_code == 200:
+                break
             r = requests.post(F'{settings.ELASTICSEARCH_HOST}/arbeitnow/_doc/{job_position["pk"]}', data=json_data, headers=headers)
-            print('================================================================')
+            # print('================================================================')

@@ -4,7 +4,6 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from collect_data.serializer import TranslateEnglishTextSerializer, IsEnglishTextSerializer
-from translate import translator
 
 class IsEnglishTextView(APIView):
     def post(self, request):
@@ -26,11 +25,13 @@ class TranslateEnglishText(APIView):
 
     def _translate(self, content):
         translate_content = ""
+        translator = Translator()
         paragraphs = content.split('\n')
         for paragraph in paragraphs:
             if self._check_germany(paragraph):
+                # print(paragraph)
                 translate_paragraph = translator.translate(paragraph, src='de', dest='en').text
-                translate_content += str(translate_paragraph) + '\n'
+                translate_content += str(translate_paragraph)
         return translate_content
 
     @staticmethod
