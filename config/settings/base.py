@@ -178,6 +178,16 @@ ELASTICSEARCH_HOST = django_env(
 BASE_HOST = django_env(
     "BASE_HOST",
 )
+
+# CACHE
+# ------------------------------------------------------------------------------
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',  # Provide a unique identifier for the cache
+    }
+}
+
 # PROJECT ADMIN EMAIL
 # ------------------------------------------------------------------------------
 EMAIL_BACKEND = email_env('EMAIL_BACKEND')

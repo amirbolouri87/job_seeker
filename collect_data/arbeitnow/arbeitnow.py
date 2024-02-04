@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 import time, json
 import requests
 from django.conf import settings
+from django.core.cache import cache
 
 
 class CollectArbeitnow(ICollectBySelenium):
@@ -28,6 +29,7 @@ class CollectArbeitnow(ICollectBySelenium):
             city = item.find_element(By.XPATH, ".//div[contains(@class, 'self-center')]/p")
             advertisement_datetime = item.find_element(By.XPATH, ".//div[contains(@class, 'self-center')]//time")
             datetime = advertisement_datetime.get_attribute("datetime")
+
             self.advertisements.append({
                 "title": title.text,
                 "company": company.text,
@@ -45,16 +47,24 @@ class CollectArbeitnow(ICollectBySelenium):
             job_position["content"] = advertise_title.text
             job_position["is_translate"] = False
             job_position['pk'] = job_position['advertise_url'].split('/')[-1] if job_position['advertise_url'] else None
+            last_url = cache.get('last_url_arbeitnow')
+            print('check advertise_url= ', job_position['advertise_url'])
+            print('check last_url= ', last_url)
+            if last_url == job_position['advertise_url']:
+                print('breaked advertisement >>>>', last_url)
+                break
             self.payload.append(job_position)
             # print(job_position)
 
     def _insert_collect_data(self):
         for job_position in self.payload:
             json_data = json.dumps(job_position)
-            print(json_data)
             headers = {'content-type': 'application/json', 'charset': 'UTF-8'}
-            is_exist_ad = r = requests.get(F'{settings.ELASTICSEARCH_HOST}/arbeitnow/_doc/{job_position["pk"]}', headers=headers)
-            if is_exist_ad.status_code == 200:
-                break
             r = requests.post(F'{settings.ELASTICSEARCH_HOST}/arbeitnow/_doc/{job_position["pk"]}', data=json_data, headers=headers)
             # print('================================================================')
+
+        if self.payload:
+            print('set cache....')
+            cache.set('last_url_arbeitnow', self.payload[0]['advertise_url'], timeout=None)
+        # print(cache.get('last_url_arbeitnow'))
+

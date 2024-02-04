@@ -21,9 +21,9 @@ software_design_skills = ["Software architecture", "Design patterns", "UML (Unif
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(60.0, collect_data.s(), name='add every 200')
-    sender.add_periodic_task(50.0, analysis_data.s(), name='add every 20')
-    sender.add_periodic_task(120.0, find_best_ads.s(), name='add every 120')
+    sender.add_periodic_task(120.0, collect_data.s(), name='collect_data')
+    # sender.add_periodic_task(50.0, analysis_data.s(), name='add every 20')
+    # sender.add_periodic_task(120.0, find_best_ads.s(), name='add every 120')
 
 
 @app.task
