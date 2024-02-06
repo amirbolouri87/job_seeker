@@ -11,7 +11,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.local')
 app = Celery('config')
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks()
-
+#FIXME: move in another file later
 python_skills = ["Python", "Django", "Flask", "RESTful API development", "SQL", "ORM (Object-Relational Mapping)", "HTML", "CSS", "JavaScript", "Git", "Unit testing", "Debugging", "Data structures", "Algorithm design", "Problem-solving", "Web development", "Software architecture", "Agile methodology"]
 python_skills_advance = ["Front-end development", "Back-end development", "DevOps", "Docker", "AWS", "Azure", "Google Cloud Platform", "Microservices", "Machine learning", "Data analysis", "Data visualization", "AI", "Natural language processing", "Parallel processing", "Security best practices", "Continuous integration/Continuous deployment (CI/CD)", "Design patterns", "Code optimization", "Performance tuning", "Agile project management", "Collaboration and communication skills"]
 django_skills = ["Django", "Python", "Django Rest Framework", "ORM (Object-Relational Mapping)", "SQL", "HTML", "CSS", "JavaScript", "RESTful API development", "Authentication and authorization", "Database design and management", "Unit Testing", "Front-end frameworks (e.g., React, Angular)", "Version control (e.g., Git)", "Debugging", "Performance optimization", "Software architecture", "Security best practices", "Agile methodology"]
