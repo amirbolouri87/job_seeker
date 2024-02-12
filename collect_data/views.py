@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from collect_data.serializer import TranslateEnglishTextSerializer, IsEnglishTextSerializer
 
+
 class IsEnglishTextView(APIView):
     def post(self, request):
         serializer = IsEnglishTextSerializer(data=request.data)
