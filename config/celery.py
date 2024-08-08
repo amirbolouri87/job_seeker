@@ -2,9 +2,13 @@ import os
 import json
 import requests
 from django.conf import settings
-from django.urls import reverse
 from celery import Celery
 from collect_data.arbeitnow.arbeitnow import CollectArbeitnow
+
+from collect_data.crawler.arbeitnow.crawler import ArbeitnowCrawler
+from collect_data.crawler.repository.elastic import ElasticStorage
+from collect_data.crawler.repository.dummy import DummyStorage
+from collect_data.crawler.arbeitnow.data_save import AdvertisementParser
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.local')
 
@@ -80,7 +84,15 @@ def analysis_data():
 @app.task
 def collect_data():
     print('start collecting data............')
-    arbeitnow = CollectArbeitnow(site_root='https://www.arbeitnow.com', search_keyword='django')
+    # arbeitnow = ArbeitnowCrawler(repo=ElasticStorage(), parser=AdvertisementParser(), search_keyword="django")
+    arbeitnow = ArbeitnowCrawler(repo=DummyStorage(), parser=AdvertisementParser(), search_keyword="django")
+
+    # setter example
+    # arbeitnow.set_current_page_num(1) default is 1
+    # arbeitnow.set_sorted_by("newest") default is newest
+    # arbeitnow.set_category("backend") default is None
+    # arbeitnow.set_tags(["remote"]) default is None
+
     arbeitnow.crawl()
 
 

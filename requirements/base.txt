@@ -10,3 +10,4 @@ requests==2.31.0
 celery==4.4.0
 googletrans==4.0.0rc1
 redis==5.0.1
+beautifulsoup4==4.12.3
