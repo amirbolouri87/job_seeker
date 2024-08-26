@@ -1,24 +1,40 @@
-FROM python:3.8
-ARG requirement_file
+FROM python:3.11-slim as builder
 
-WORKDIR /job_seeker_data
+# avoid stuck build due to user prompt
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Copy project files to the working directory
-COPY . /job_seeker_data/
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
 
-RUN apt-get update && apt-get install -y \
-    python3.8-dev \
-    alien \
-    libaio1 \
-    libaio-dev
+# create and activate virtual environment
+RUN python -m venv /home/myuser/venv
+ENV PATH="/home/myuser/venv/bin:$PATH"
 
-# Install Python dependencies
-RUN pip install -r /job_seeker_data/requirements/$requirement_file
+# install requirements
+COPY requirements.txt .
+RUN pip3 install --upgrade --no-cache-dir pip
+RUN pip3 install --no-cache-dir wheel
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-COPY ./entrypoint.py /job_seeker_data/
+FROM python:3.11-slim
+COPY --from=builder /home/myuser/venv /home/myuser/venv
 
-RUN chmod +x /job_seeker_data/entrypoint.py
-CMD ["python", "/job_seeker_data/entrypoint.py"]
+USER myuser
+RUN mkdir /home/myuser/code
+WORKDIR /home/myuser/code
+COPY . /home/myuser/code
 
-# for build image use these structure
-# sudo docker build --build-arg requirement_file=production.txt --no-cache -t eclaim_production:latest -f Dockerfile .
+EXPOSE ${DJANGO_PORT}
+
+# make sure all messages always reach console
+ENV PYTHONUNBUFFERED=1
+
+# activate virtual environment
+ENV VIRTUAL_ENV=/home/myuser/venv
+ENV PATH="/home/myuser/venv/bin:$PATH"
+
+# /dev/shm is mapped to shared memory and should be used for gunicorn heartbeat
+# this will improve performance and avoid random freezes
+# CMD ["gunicorn","-b", "0.0.0.0:8000", "-w", "4", "-k", "gevent", "--worker-tmp-dir", "/dev/shm", "--chdir", "config config.wsgi:application"]
+
+#CMD ["python", "/job_seeker_data/entrypoint.py"]

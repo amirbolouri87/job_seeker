@@ -20,7 +20,11 @@ services:
       - .setting_envs/local/.email
       - .setting_envs/local/.postgres
     ports:
-      - '8000:8000'
+      - ${DJANGO_PORT}:${DJANGO_PORT}
+    command: sh -c "python3 manage.py makemigrations && 
+                    python3 manage.py migrate --no-input && 
+                    python3 manage.py collectstatic --no-input && 
+                    gunicorn -k gevent --workers 4 --worker-tmp-dir /dev/shm --chdir config config.wsgi:application -b 0.0.0.0:${DJANGO_PORT}"
     depends_on:
       - postgres
       - rabbitmq
