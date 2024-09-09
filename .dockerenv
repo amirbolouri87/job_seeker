@@ -1,6 +1,5 @@
 DJANGO_PORT=8002
 DJANGO_SETTINGS_MODULE=config.settings.local
-TAG_NAME=latest
 DOCKER_FILE=./dockerfile/DevDockerfile
 
 DB_NAME=amir

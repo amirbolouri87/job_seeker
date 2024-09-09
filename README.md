@@ -37,4 +37,18 @@ DEBUG=
 SECRET_KEY=
 ALLOWED_HOSTS=
 
+```
 
+```markdown
+## Running the Project in Docker Development Environment
+
+To run the project in a Docker environment in development mode, use the following command:
+
+```bash
+docker-compose --env-file .dockerenv --file development-docker-compose.yml up -d
+```
+
+### Docker Compose Environment Variables
+
+The Docker Compose environment variables are located in the `.dockerenv` file. You can modify settings such as the web application port, password, and more.
+```
