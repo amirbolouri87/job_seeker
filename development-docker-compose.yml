@@ -1,11 +1,15 @@
+version: "3.9"
+
 services:
   postgres:
     container_name: postgres_dedicated_container
     image: postgres:latest
+    hostname: ${DB_HOST}
     environment:
-      POSTGRES_USER: amir
-      POSTGRES_PASSWORD: amir
-      PGDATA: /data/postgres
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - PGDATA=/data/postgres
     volumes:
        - dedicated_postgres:/data/dedicated_postgres
     ports:
@@ -14,17 +18,21 @@ services:
       - job_seeker_dev_network
 
   web:
-    image: job_seeker_dev:$TAG_NAME
+    build:
+      context: .
+      dockerfile: ${DOCKER_FILE}
     env_file:
+      - .setting_envs/test/.env
       - .setting_envs/local/.django
       - .setting_envs/local/.email
       - .setting_envs/local/.postgres
+    expose:
+      - ${DJANGO_PORT}
     ports:
       - ${DJANGO_PORT}:${DJANGO_PORT}
-    command: sh -c "python3 manage.py makemigrations && 
-                    python3 manage.py migrate --no-input && 
-                    python3 manage.py collectstatic --no-input && 
-                    gunicorn -k gevent --workers 4 --worker-tmp-dir /dev/shm --chdir config config.wsgi:application -b 0.0.0.0:${DJANGO_PORT}"
+    command: sh -c "export DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE} &&
+                    export DJANGO_PORT=${DJANGO_PORT} &&
+                    python3 entrypoint.py"
     depends_on:
       - postgres
       - rabbitmq
@@ -32,6 +40,8 @@ services:
       - elastic
     networks:
       - job_seeker_dev_network
+    volumes:
+      - .:/home/code
 
   redis:
     image: redis:latest
@@ -42,6 +52,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.8-management-alpine
+    hostname: ${RABBITMQ_HOST}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -51,10 +62,16 @@ services:
     networks:
       - job_seeker_dev_network
     volumes:
-      - ./rabbitmq-data:/var/lib/rabbitmq
+      - rabbitmq_data:/var/lib/rabbitmq
 
   worker:
-    image: job_seeker_dev:$TAG_NAME
+    build:
+      context: .
+      dockerfile: ${DOCKER_FILE}
+    environment:
+      - DJANGO_PORT=${DJANGO_PORT}
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - DJANGO_REQUIREMENT_FILE=${DJANGO_REQUIREMENT_FILE}
     command: celery -A config.celery worker -B --loglevel=info
     env_file:
       - .setting_envs/local/.django
@@ -87,6 +104,7 @@ services:
       - job_seeker_dev_network
     ports:
       - 9200:9200
+    mem_limit: 5g
 
   kibana:
     container_name: job_seeker_kibana
@@ -119,6 +137,7 @@ volumes:
     driver: local
   dedicated_postgres:
   elasticsearch-data:
+  rabbitmq_data:
 
 networks:
   job_seeker_dev_network:
