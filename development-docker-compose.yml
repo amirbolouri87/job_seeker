@@ -104,7 +104,6 @@ services:
       - job_seeker_dev_network
     ports:
       - 9200:9200
-    mem_limit: 5g
 
   kibana:
     container_name: job_seeker_kibana
