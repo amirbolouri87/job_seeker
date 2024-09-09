@@ -1,0 +1,10 @@
+DJANGO_PORT=8002
+DJANGO_SETTINGS_MODULE=config.settings.local
+DOCKER_FILE=./dockerfile/DevDockerfile
+
+DB_NAME=amir
+DB_USER=amir
+DB_PASS=amir
+DB_HOST=postgres_host
+
+RABBITMQ_HOST=rabbitmq_host

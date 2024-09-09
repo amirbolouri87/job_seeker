@@ -15,7 +15,7 @@ README.md
 static/
 .coverage
 .gitlab-ci.yml
-Dockerfile
+dockerfile/DevDockerfile
 flower.db
 .gitignore
 db.sqlite3
