@@ -36,5 +36,12 @@ DJANGO_SETTINGS_MODULE=
 DEBUG=
 SECRET_KEY=
 ALLOWED_HOSTS=
+```
 
+## Requirements
+- Python version: 3.12 or higher
 
+    ### Dependencies:
+  - Development: See `requirements/local.txt`
+  - Test: See `requirements/test.txt`
+  - Production: See `requirements/production.txt`
