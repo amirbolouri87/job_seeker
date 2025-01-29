@@ -1,4 +1,4 @@
-from collect_data.arbeitnow.collect_data import ICollectBySelenium
+from collect_data.crawler.arbeitnow.collect_data import ICollectBySelenium
 from selenium.webdriver.common.by import By
 import time, json
 import requests
