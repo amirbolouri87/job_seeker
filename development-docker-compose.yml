@@ -1,33 +1,10 @@
 volumes:
-  static_volume:
-    driver: local
-  dedicated_postgres:
-  elasticsearch_data:
   rabbitmq_data:
 
 networks:
   job_seeker_dev_network:
 
 services:
-  postgres:
-    container_name: postgres_dedicated_container
-    image: postgres:17
-    environment:
-      POSTGRES_USER: amir
-      POSTGRES_PASSWORD: amir
-      PGDATA: /data/postgres
-    volumes:
-       - dedicated_postgres:/data/dedicated_postgres
-    ports:
-      - "5432:5432"
-    networks:
-      - job_seeker_dev_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U amir"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
   web:
     image: job_seeker_dev:$TAG_NAME
     env_file:
@@ -38,13 +15,9 @@ services:
     ports:
       - '8000:8000'
     depends_on:
-      postgres:
-        condition: service_healthy
       rabbitmq:
         condition: service_started
       redis:
-        condition: service_healthy
-      elasticsearch:
         condition: service_healthy
     networks:
       - job_seeker_dev_network
@@ -91,46 +64,6 @@ services:
         condition: service_started
     networks:
       - job_seeker_dev_network
-
-  elasticsearch:
-    image: elasticsearch:8.16.3
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - xpack.security.enabled=false
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    mem_limit: 1.5gb
-    ports:
-      - "9200:9200"
-    networks:
-      - job_seeker_dev_network
-    restart: always
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9200/_cluster/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  kibana:
-    image: kibana:8.16.3
-    container_name: kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    networks:
-      - job_seeker_dev_network
-    restart: always
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
 
 
 #sudo TAG_NAME="latest" docker compose up

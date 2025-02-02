@@ -23,6 +23,8 @@ services:
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     mem_limit: 1.5gb
+    ports:
+      - "9200:9200"
     networks:
       - elastic_network
     restart: always
