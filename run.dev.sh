@@ -14,4 +14,4 @@ else
     docker build --build-arg requirement_file=local.txt --no-cache -t "${IMAGE}" -f Dockerfile .
 fi
 
-TAG_NAME="${IMG_TAG}" docker compose --file development-docker-compose.yml up
+TAG_NAME="${IMG_TAG}" docker compose --file development-docker-compose.yml up -d
