@@ -8,7 +8,13 @@ else
   exit 1
 fi
 
-# set DNS
+# Check if required environment variables are set
+if [ -z "$ELASTIC_PASSWORD" ] || [ -z "$KIBANA_PASSWORD" ]; then
+  echo "ELASTIC_PASSWORD or KIBANA_PASSWORD not defined in .env file."
+  exit 1
+fi
+
+# Set DNS
 read -p "Do you want to configure custom DNS? (y/n): " use_dns
 if [ "$use_dns" == "y" ]; then
   read -p "Enter primary DNS: " dns1
@@ -21,7 +27,7 @@ if [ "$use_dns" == "y" ]; then
   echo "DNS has been configured."
 fi
 
-# mirror registry
+# Mirror registry
 read -p "Do you want to use a mirror registry? (y/n): " use_mirror
 if [ "$use_mirror" == "y" ]; then
   read -p "Enter the mirror registry URL (e.g., docker.arvancloud.ir): " mirror_registry
@@ -39,7 +45,7 @@ if [ -z "$(docker images -q elasticsearch:8.16.3)" ]; then
       exit 1
     }
   else
-    docker pull elasticsearch:8.16.4 || {
+    docker pull elasticsearch:8.16.3 || {
       echo "Failed to pull Elasticsearch image. Exiting..."
       exit 1
     }
@@ -65,10 +71,22 @@ fi
 
 # Start Elasticsearch and Kibana
 echo "Starting Elasticsearch and Kibana..."
-docker compose up -d
+docker compose up -d elasticsearch
 
-# Test connection to Elasticsearch
-echo "Testing connection to Elasticsearch..."
-curl -u "elastic:${ELASTIC_PASSWORD}" http://localhost:9200
+echo "Waiting for Elasticsearch to be ready..."
+until curl -s -u elastic:"${ELASTIC_PASSWORD}" http://localhost:9200 -o /dev/null; do
+  echo "Elasticsearch is not ready. Retrying in 5 seconds..."
+  sleep 5
+done
+
+sleep 5
+
+docker exec -it elasticsearch chown -R elasticsearch:elasticsearch /usr/share/elasticsearch/data > /dev/null 2>&1 || {
+    echo "set kibana password"
+}
+
+(echo "y" && echo "${KIBANA_PASSWORD}" && echo "${KIBANA_PASSWORD}") | docker exec -i elasticsearch bin/elasticsearch-reset-password -u kibana_system -i
+
+docker compose up -d
 
 echo "Setup completed"
